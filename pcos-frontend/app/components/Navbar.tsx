@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import { Calendar, Stethoscope, LogOut, HeartPulse } from "lucide-react"
 import { useState, useEffect } from "react"
+import ThemeToggle from "./ThemeToggle"
 
 export default function Navbar() {
   const router = useRouter()
@@ -29,15 +30,15 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-fuchsia-100 dark:bg-fuchsia-900/50 rounded-lg">
-            <HeartPulse className="w-5 h-5 text-fuchsia-600 dark:text-fuchsia-400" />
+          <div className="p-2 bg-pink-100 dark:bg-pink-900/50 rounded-lg">
+            <HeartPulse className="w-5 h-5 text-pink-600 dark:text-pink-400" />
           </div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-            PCOS <span className="text-fuchsia-600 dark:text-fuchsia-400">Tracker</span>
+          <h1 className="text-xl font-bold text-stone-900 dark:text-white">
+            PCOS <span className="text-pink-600 dark:text-pink-400">Tracker</span>
           </h1>
         </div>
 
@@ -48,7 +49,7 @@ export default function Navbar() {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
               isActive("/dashboard")
                 ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
-                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
             }`}
           >
             <Calendar className="w-4 h-4" />
@@ -59,8 +60,8 @@ export default function Navbar() {
             onClick={() => router.push("/assessment")}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
               isActive("/assessment")
-                ? "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
-                : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
+                : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
             }`}
           >
             <Stethoscope className="w-4 h-4" />
@@ -69,10 +70,11 @@ export default function Navbar() {
         </div>
 
         {/* User Info & Logout */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <ThemeToggle />
           <div className="hidden sm:block text-right text-sm">
-            <p className="font-semibold text-slate-800 dark:text-white">{user?.name}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{user?.email}</p>
+            <p className="font-semibold text-stone-800 dark:text-white">{user?.name}</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">{user?.email}</p>
           </div>
           <button
             onClick={handleLogout}

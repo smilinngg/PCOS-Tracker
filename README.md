@@ -1,34 +1,102 @@
-# PCOS Prediction System using Machine Learning
+# 🩺 PCOS Risk Prediction System
 
-## Overview
-This project predicts the risk of **Polycystic Ovary Syndrome (PCOS)** using a Machine Learning model.  
-Users can input health parameters such as age, BMI, weight, and menstrual cycle length, and the system predicts the probability of PCOS.
-
-The system is built with a **Machine Learning backend and a full-stack web architecture**.
+An end-to-end Machine Learning + Full Stack application that predicts PCOS risk based on health metrics and menstrual cycle data.
 
 ---
 
-## Features
-- Predict PCOS risk using ML model
-- REST API for predictions
-- Stores prediction results in database
-- Scalable full-stack architecture
-- Built for healthcare AI applications
+## 🚀 Features
+
+- 🔍 AI-based PCOS Risk Prediction
+- 📅 Period Tracking System
+- 📊 Risk Percentage + Classification (Low / Moderate / High)
+- 🧠 Feature Engineering (Cycle Irregularity Detection)
+- 🗂️ Prediction History Tracking
+- 🔐 User Authentication (JWT)
 
 ---
 
-## Tech Stack
+## 🧠 Tech Stack
+
+### Frontend
+- Next.js
+- Tailwind CSS
 
 ### Backend
-- Python
 - FastAPI
-- Scikit-learn
-
-### Database
 - MongoDB
 
 ### Machine Learning
 - Random Forest Classifier
+- Scikit-learn
+- Pandas, NumPy
+
+---
+
+## ⚙️ How It Works
+
+1. User inputs health data
+2. Backend processes features
+3. ML model predicts risk probability
+4. Risk is adjusted using medical rules
+5. Results displayed on dashboard
+
+---
+
+## 📊 Model Details
+
+- Algorithm: Random Forest
+- Accuracy: ~XX% (update your value)
+- Cross-validation used for evaluation
+- Feature Importance used for interpretability
+
+---
+
+## 🧪 Key Features Used
+
+- Age
+- BMI
+- Cycle Length
+- Weight Gain
+- Hair Growth
+- Skin Darkening
+- Pimples
+- Fast Food Consumption
+
+---
+
+## ⚠️ Disclaimer
+
+This is not a medical diagnosis tool. It is built for educational and awareness purposes only.
+
+---
+
+## 🛠️ Setup Instructions
+
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
 ### Frontend
-- Next.js (React)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 📌 Future Improvements
+
+- Wearable device integration
+- Doctor consultation system
+- Explainable AI (SHAP)
+- Mobile app version
+
+---
+
+## 👩‍💻 Author
+
+Shravani Bhalerao

@@ -135,21 +135,21 @@ export default function PeriodCalendar({ email }) {
     return (
       <div className="w-full">
         {/* Header Controls */}
-        <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <div className="flex items-center justify-between mb-6 border-b border-stone-100 dark:border-stone-800 pb-4">
           <button 
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors"
+            className="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-stone-500 transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           
-          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-stone-800 dark:text-stone-200">
             {format(currentMonth, "MMMM yyyy")}
           </h3>
           
           <button 
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 transition-colors"
+            className="p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg text-stone-500 transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -158,7 +158,7 @@ export default function PeriodCalendar({ email }) {
         {/* Days of week */}
         <div className="grid grid-cols-7 mb-3">
           {weekDays.map((day, i) => (
-            <div key={i} className="text-center text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">
+            <div key={i} className="text-center text-xs font-semibold text-stone-400 dark:text-stone-500 uppercase">
               {day}
             </div>
           ))}
@@ -183,14 +183,14 @@ export default function PeriodCalendar({ email }) {
                 onClick={() => toggleDate(day)}
                 className={`
                   flex items-center justify-center p-0 h-9 w-9 sm:h-10 sm:w-10 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer
-                  ${!isCurrentMonth ? "opacity-40 hover:opacity-60" : "hover:bg-rose-50 dark:hover:bg-slate-800"}
+                  ${!isCurrentMonth ? "opacity-40 hover:opacity-60" : "hover:bg-rose-50 dark:hover:bg-stone-800"}
                   ${isSelected ? "bg-rose-500 hover:bg-rose-600 text-white shadow-md shadow-rose-500/30 font-bold scale-105 z-10" : ""}
                   ${isPastLogged && !isSelected ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 font-semibold" : ""}
                   ${isNextPeriodDay && !isSelected && !isPastLogged ? "ring-2 ring-orange-400 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]" : ""}
                   ${isOvulationDay && !isSelected && !isPastLogged && !isNextPeriodDay ? "ring-2 ring-pink-400 bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 shadow-[0_0_10px_rgba(236,72,153,0.5)]" : ""}
-                  ${isPredicted && !isSelected && !isPastLogged && !isNextPeriodDay && !isOvulationDay ? "ring-2 ring-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.5)] font-bold animate-pulse" : ""}
-                  ${isToday && !isSelected && !isPastLogged && !isPredicted && !isNextPeriodDay && !isOvulationDay ? "ring-2 ring-slate-200 dark:ring-slate-700 text-slate-900 bg-slate-50 dark:bg-slate-900/50" : ""}
-                  ${!isSelected && !isPastLogged && !isPredicted && !isToday && !isNextPeriodDay && !isOvulationDay ? "text-slate-700 dark:text-slate-300" : ""}
+                  ${isPredicted && !isSelected && !isPastLogged && !isNextPeriodDay && !isOvulationDay ? "ring-2 ring-pink-400 bg-pink-50 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 shadow-[0_0_10px_rgba(232,121,249,0.5)] font-bold animate-pulse" : ""}
+                  ${isToday && !isSelected && !isPastLogged && !isPredicted && !isNextPeriodDay && !isOvulationDay ? "ring-2 ring-stone-200 dark:ring-stone-700 text-stone-900 bg-stone-50 dark:bg-stone-900/50" : ""}
+                  ${!isSelected && !isPastLogged && !isPredicted && !isToday && !isNextPeriodDay && !isOvulationDay ? "text-stone-700 dark:text-stone-300" : ""}
                 `}
               >
                 {format(day, dateFormat)}
@@ -203,39 +203,39 @@ export default function PeriodCalendar({ email }) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl shadow-sm overflow-hidden flex flex-col">
       
       {/* Top side: The Custom Tailwind Calendar */}
-      <div className="flex-1 p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20">
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-2">
+      <div className="flex-1 p-6 sm:p-8 border-b border-stone-100 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-950/20">
+        <h2 className="text-xl font-bold text-stone-800 dark:text-white flex items-center gap-2 mb-2">
           <CalendarIcon className="w-6 h-6 text-rose-500" />
           Log Period Dates
         </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Select the days you had your period below.</p>
+        <p className="text-sm text-stone-500 dark:text-stone-400 mb-6">Select the days you had your period below.</p>
         
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/80 mb-6">
+        <div className="bg-white dark:bg-stone-900 rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-200/50 dark:border-stone-800/80 mb-6">
           {renderCalendar()}
         </div>
 
         <div className="flex flex-wrap items-center gap-4 mb-6">
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-stone-500">
             <div className="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/30"></div>
             <span className="font-medium whitespace-nowrap">Selected: <b className="text-rose-600 dark:text-rose-400 ml-1">{selectedDates.length} days</b></span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-stone-500">
             <div className="w-3.5 h-3.5 rounded-full bg-rose-100 dark:bg-rose-900/40 border border-rose-200 dark:border-rose-800"></div>
             <span className="font-medium whitespace-nowrap">Saved History</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-stone-500">
             <div className="w-3.5 h-3.5 rounded-full ring-2 ring-pink-400 bg-pink-50 dark:bg-pink-900/30 shadow-[0_0_8px_rgba(236,72,153,0.5)]"></div>
             <span className="font-medium whitespace-nowrap">Ovulation Window</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-stone-500">
             <div className="w-3.5 h-3.5 rounded-full ring-2 ring-orange-400 bg-orange-50 dark:bg-orange-900/30 shadow-[0_0_8px_rgba(249,115,22,0.5)]"></div>
             <span className="font-medium whitespace-nowrap">Next Period</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <div className="w-3.5 h-3.5 rounded-full ring-2 ring-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-900/30 shadow-[0_0_8px_rgba(232,121,249,0.5)]"></div>
+          <div className="flex items-center gap-2 text-sm text-stone-500">
+            <div className="w-3.5 h-3.5 rounded-full ring-2 ring-pink-400 bg-pink-50 dark:bg-pink-900/30 shadow-[0_0_8px_rgba(232,121,249,0.5)]"></div>
             <span className="font-medium whitespace-nowrap">Predicted Start</span>
           </div>
         </div>
@@ -243,14 +243,14 @@ export default function PeriodCalendar({ email }) {
         <button
           onClick={savePeriods}
           disabled={isLogging || selectedDates.length === 0}
-          className="w-full flex items-center justify-center gap-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-white dark:text-slate-900 font-bold py-4 rounded-xl transition-all duration-300 shadow-xl shadow-slate-900/10"
+          className="w-full flex items-center justify-center gap-2 bg-stone-900 dark:bg-stone-100 hover:bg-stone-800 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-white dark:text-stone-900 font-bold py-4 rounded-xl transition-all duration-300 shadow-xl shadow-stone-900/10"
         >
           {isLogging ? <RefreshCw className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
           {isLogging ? "Saving Dates..." : "Save Recorded Dates"}
         </button>
 
         {successMsg && (
-          <div className="mt-4 flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-xl text-emerald-700 dark:text-emerald-400 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="mt-4 flex items-center justify-center gap-2 p-3 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800/40 rounded-xl text-teal-700 dark:text-teal-400 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span className="font-medium">{successMsg}</span>
           </div>
@@ -265,21 +265,21 @@ export default function PeriodCalendar({ email }) {
       </div>
 
       {/* Bottom side: Cycle Analytics Panel */}
-      <div className="flex-[0.8] bg-white dark:bg-slate-900 p-6 sm:p-8 flex flex-col">
+      <div className="flex-[0.8] bg-white dark:bg-stone-900 p-6 sm:p-8 flex flex-col">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-            <Droplets className="w-4 h-4 text-fuchsia-500" /> Cycle Intelligence
+          <h3 className="text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-2">
+            <Droplets className="w-4 h-4 text-pink-500" /> Cycle Intelligence
           </h3>
           <div className="flex items-center gap-2">
-            <button onClick={fetchData} className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full transition-colors" title="Refresh Data">
+            <button onClick={fetchData} className="p-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 rounded-full transition-colors" title="Refresh Data">
               <RefreshCw className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {isLoadingData ? (
-          <div className="flex-1 flex items-center justify-center text-slate-400 gap-2 text-sm">
-            <RefreshCw className="w-5 h-5 animate-spin text-fuchsia-400" /> Loading cycle logic...
+          <div className="flex-1 flex items-center justify-center text-stone-400 gap-2 text-sm">
+            <RefreshCw className="w-5 h-5 animate-spin text-pink-400" /> Loading cycle logic...
           </div>
         ) : cycleInfo ? (
           <div className="flex-1 flex flex-col space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -307,19 +307,19 @@ export default function PeriodCalendar({ email }) {
             )}
 
             {cycleInfo.next_predicted && (
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-950 rounded-3xl p-6 text-white shadow-xl shadow-slate-900/10 relative overflow-hidden group">
+              <div className="bg-gradient-to-br from-stone-900 to-stone-800 dark:from-stone-800 dark:to-stone-950 rounded-3xl p-6 text-white shadow-xl shadow-stone-900/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl group-hover:bg-rose-500/30 transition-colors duration-700"></div>
-                <div className="absolute bottom-0 left-0 -ml-4 -mb-4 w-24 h-24 bg-fuchsia-500/20 rounded-full blur-2xl group-hover:bg-fuchsia-500/30 transition-colors duration-700"></div>
+                <div className="absolute bottom-0 left-0 -ml-4 -mb-4 w-24 h-24 bg-pink-500/20 rounded-full blur-2xl group-hover:bg-pink-500/30 transition-colors duration-700"></div>
                 
                 <div className="relative z-10">
-                  <p className="text-slate-300 text-xs font-semibold uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <p className="text-stone-300 text-xs font-semibold uppercase tracking-widest mb-2 flex items-center gap-2">
                     Predicted Next Period Start
                   </p>
                   <p className="text-4xl font-black mb-4 tracking-tight drop-shadow-sm">
                     {cycleInfo.next_predicted}
                   </p>
                   <div className="bg-white/10 dark:bg-white/5 border border-white/10 rounded-xl p-3 backdrop-blur-md">
-                    <p className="text-xs text-slate-200 flex items-start gap-2 leading-relaxed">
+                    <p className="text-xs text-stone-200 flex items-start gap-2 leading-relaxed">
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1 shrink-0 shadow-[0_0_8px_rgba(251,113,133,0.8)]"></span>
                       <span>Based on your average cycle of <strong>{cycleInfo.average_cycle} days</strong>.</span>
                     </p>
@@ -329,27 +329,27 @@ export default function PeriodCalendar({ email }) {
             )}
 
             <div className="grid grid-cols-2 gap-4 flex-1">
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center text-center transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                <p className="text-4xl font-black text-slate-800 dark:text-white mb-1">
+              <div className="bg-stone-50 dark:bg-stone-800/50 rounded-3xl p-5 border border-stone-100 dark:border-stone-800 flex flex-col items-center justify-center text-center transition-colors hover:bg-stone-100 dark:hover:bg-stone-800">
+                <p className="text-4xl font-black text-stone-800 dark:text-white mb-1">
                   {cycleInfo.average_cycle}
                 </p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Days Avg Cycle</p>
+                <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Days Avg Cycle</p>
               </div>
               
               <div className={`rounded-3xl p-5 flex flex-col items-center justify-center gap-2 text-center transition-all ${
                 cycleInfo.irregular
                   ? "bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-900/20"
-                  : "bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/20"
+                  : "bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/20"
               }`}>
-                <div className={`p-2 rounded-full ${cycleInfo.irregular ? "bg-rose-100 dark:bg-rose-900/50" : "bg-emerald-100 dark:bg-emerald-900/50"}`}>
+                <div className={`p-2 rounded-full ${cycleInfo.irregular ? "bg-rose-100 dark:bg-rose-900/50" : "bg-teal-100 dark:bg-teal-900/50"}`}>
                   {cycleInfo.irregular ? (
                     <AlertTriangle className="w-5 h-5 text-rose-500" />
                   ) : (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <CheckCircle2 className="w-5 h-5 text-teal-500" />
                   )}
                 </div>
                 <p className={`text-base font-bold ${
-                  cycleInfo.irregular ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"
+                  cycleInfo.irregular ? "text-rose-600 dark:text-rose-400" : "text-teal-600 dark:text-teal-400"
                 }`}>
                   {cycleInfo.irregular ? "Irregular" : "Regular"} Status
                 </p>
@@ -358,11 +358,11 @@ export default function PeriodCalendar({ email }) {
 
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center px-4 text-center text-slate-400 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-slate-50/50 dark:bg-slate-900/30">
-            <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-md mb-4">
+          <div className="flex-1 flex flex-col items-center justify-center px-4 text-center text-stone-400 border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-3xl bg-stone-50/50 dark:bg-stone-900/30">
+            <div className="w-16 h-16 bg-white dark:bg-stone-800 rounded-2xl flex items-center justify-center shadow-md mb-4">
               <TrendingUp className="w-8 h-8 opacity-40 text-rose-500" />
             </div>
-            <h4 className="text-slate-800 dark:text-slate-200 font-bold mb-2">Build Your Algorithm</h4>
+            <h4 className="text-stone-800 dark:text-stone-200 font-bold mb-2">Build Your Algorithm</h4>
             <p className="text-sm max-w-[250px] leading-relaxed">Log at least two periods on the calendar to establish your baseline cycle rhythm and enable AI predictions.</p>
           </div>
         )}

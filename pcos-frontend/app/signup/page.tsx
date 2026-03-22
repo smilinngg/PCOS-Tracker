@@ -38,15 +38,15 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-fuchsia-50 to-indigo-50 dark:from-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 shadow-xl rounded-3xl p-8 border border-white/50 dark:border-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-50 dark:from-stone-900 dark:to-stone-900 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-stone-900 shadow-xl rounded-3xl p-8 border border-white/50 dark:border-stone-800">
         
         <div className="text-center mb-8">
-          <div className="inline-flex p-3 bg-fuchsia-100 dark:bg-fuchsia-900/50 rounded-2xl mb-4">
-            <ActivitySquare className="w-8 h-8 text-fuchsia-600 dark:text-fuchsia-400" />
+          <div className="inline-flex p-3 bg-pink-100 dark:bg-pink-900/50 rounded-2xl mb-4">
+            <ActivitySquare className="w-8 h-8 text-pink-600 dark:text-pink-400" />
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Create Account</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Join to track your PCOS risk & health metrics.</p>
+          <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white">Create Account</h1>
+          <p className="text-stone-500 dark:text-stone-400 mt-2">Join to track your PCOS risk & health metrics.</p>
         </div>
 
         {error && (
@@ -57,32 +57,32 @@ export default function Signup() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input required type="text" name="name" placeholder="Full Name" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-fuchsia-500 transition-shadow" />
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+            <input required type="text" name="name" placeholder="Full Name" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-pink-500 transition-shadow" />
           </div>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input required type="email" name="email" placeholder="Email Address" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-fuchsia-500 transition-shadow" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+            <input required type="email" name="email" placeholder="Email Address" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-pink-500 transition-shadow" />
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input required type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-fuchsia-500 transition-shadow" />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+            <input required type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-pink-500 transition-shadow" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <input required type="number" name="age" placeholder="Age" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-fuchsia-500 transition-shadow" />
+            <input required type="number" name="age" placeholder="Age" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-pink-500 transition-shadow" />
             <div className="relative">
-               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-               <input required type="tel" name="phone" placeholder="Phone" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-9 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-fuchsia-500 transition-shadow" />
+               <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+               <input required type="tel" name="phone" placeholder="Phone" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-9 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-pink-500 transition-shadow" />
             </div>
           </div>
 
-          <button disabled={loading} type="submit" className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-fuchsia-600 dark:hover:bg-fuchsia-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-2 flex items-center justify-center gap-2">
+          <button disabled={loading} type="submit" className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-pink-600 dark:hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-2 flex items-center justify-center gap-2">
             {loading ? "Creating Account..." : <>Sign Up <ArrowRight className="w-5 h-5" /></>}
           </button>
         </form>
 
-        <p className="text-center mt-6 text-sm text-slate-500 dark:text-slate-400">
-          Already have an account? <button onClick={() => router.push('/login')} className="text-fuchsia-600 dark:text-fuchsia-400 font-bold hover:underline">Log in</button>
+        <p className="text-center mt-6 text-sm text-stone-500 dark:text-stone-400">
+          Already have an account? <button onClick={() => router.push('/login')} className="text-pink-600 dark:text-pink-400 font-bold hover:underline">Log in</button>
         </p>
 
       </div>

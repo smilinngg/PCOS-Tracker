@@ -273,14 +273,31 @@ def log_period(data: dict = Body(...)):
     # Sort dates to ensure chronological order
     sorted_dates = sorted(dates) if dates else []
 
-    record = {
-        "email": email,
-        "period_dates": sorted_dates,
-        "start_date": sorted_dates[0] if sorted_dates else None, # Helpful for sorting
-        "logged_at": datetime.now()
-    }
+    if not sorted_dates:
+        return {"error": "Empty dates array"}
 
-    periods_collection.insert_one(record)
+    # Group dates into distinct periods (e.g., gap > 10 days means a new period)
+    periods = []
+    current_period = [sorted_dates[0]]
+    
+    for i in range(1, len(sorted_dates)):
+        prev_date = datetime.strptime(sorted_dates[i-1], "%Y-%m-%d")
+        curr_date = datetime.strptime(sorted_dates[i], "%Y-%m-%d")
+        if (curr_date - prev_date).days > 10:
+            periods.append(current_period)
+            current_period = [sorted_dates[i]]
+        else:
+            current_period.append(sorted_dates[i])
+    periods.append(current_period)
+
+    for p in periods:
+        record = {
+            "email": email,
+            "period_dates": p,
+            "start_date": p[0], # Helpful for sorting
+            "logged_at": datetime.now()
+        }
+        periods_collection.insert_one(record)
 
     return {"message": "Period logged successfully"}
 

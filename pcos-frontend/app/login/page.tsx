@@ -47,15 +47,15 @@ function LoginForm() {
   return (
     <>
       <div className="text-center mb-8">
-        <div className="inline-flex p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl mb-4">
-          <ActivitySquare className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+        <div className="inline-flex p-3 bg-rose-100 dark:bg-rose-900/50 rounded-2xl mb-4">
+          <ActivitySquare className="w-8 h-8 text-rose-600 dark:text-rose-400" />
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Welcome Back</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2">Log in to your PCOS tracking dashboard.</p>
+        <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white">Welcome Back</h1>
+        <p className="text-stone-500 dark:text-stone-400 mt-2">Log in to your PCOS tracking dashboard.</p>
       </div>
 
       {message && (
-        <div className="mb-6 p-3 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-sm rounded-xl flex items-center gap-2">
+        <div className="mb-6 p-3 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 text-sm rounded-xl flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" /> {message}
         </div>
       )}
@@ -68,21 +68,21 @@ function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input required type="email" name="email" placeholder="Email Address" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow" />
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+          <input required type="email" name="email" placeholder="Email Address" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-rose-500 transition-shadow" />
         </div>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input required type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full bg-slate-50 dark:bg-slate-800 pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow" />
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+          <input required type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-rose-500 transition-shadow" />
         </div>
 
-        <button disabled={loading} type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2">
+        <button disabled={loading} type="submit" className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2">
           {loading ? "Logging in..." : <>Continue to Dashboard <ArrowRight className="w-5 h-5" /></>}
         </button>
       </form>
 
-      <p className="text-center mt-6 text-sm text-slate-500 dark:text-slate-400">
-        Don&apos;t have an account? <button onClick={() => router.push('/signup')} className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Sign up</button>
+      <p className="text-center mt-6 text-sm text-stone-500 dark:text-stone-400">
+        Don&apos;t have an account? <button onClick={() => router.push('/signup')} className="text-rose-600 dark:text-rose-400 font-bold hover:underline">Sign up</button>
       </p>
     </>
   )
@@ -90,8 +90,8 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 shadow-xl rounded-3xl p-8 border border-white/50 dark:border-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 to-rose-50 dark:from-stone-900 dark:to-stone-900 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-stone-900 shadow-xl rounded-3xl p-8 border border-white/50 dark:border-stone-800">
         <Suspense fallback={<div className="text-center p-8">Loading...</div>}>
           <LoginForm />
         </Suspense>

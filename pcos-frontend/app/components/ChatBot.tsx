@@ -220,7 +220,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
             <MessageCircleHeart className="w-7 h-7 text-white" />
           )}
           {hasNewMessage && !isOpen && (
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-teal-400 rounded-full border-2 border-white animate-pulse" />
           )}
         </div>
       </button>
@@ -274,16 +274,16 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                 )}
                 {!cycleInfo?.next_predicted && (
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`w-2 h-2 rounded-full border-2 border-white/20 ${isStreaming ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
-                    <span className={`text-xs font-medium ${isStreaming ? "text-amber-400" : "text-emerald-400"}`}>
+                    <span className={`w-2 h-2 rounded-full border-2 border-white/20 ${isStreaming ? "bg-amber-400 animate-pulse" : "bg-teal-400"}`} />
+                    <span className={`text-xs font-medium ${isStreaming ? "text-amber-400" : "text-teal-400"}`}>
                       {isStreaming ? "Typing..." : "Online"}
                     </span>
                   </div>
                 )}
                 {cycleAware && cycleInfo?.next_predicted && (
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className={`w-2 h-2 rounded-full border-2 border-white/20 ${isStreaming ? "bg-amber-400 animate-pulse" : "bg-emerald-400"}`} />
-                    <span className={`text-xs font-medium ${isStreaming ? "text-amber-400" : "text-emerald-400"}`}>
+                    <span className={`w-2 h-2 rounded-full border-2 border-white/20 ${isStreaming ? "bg-amber-400 animate-pulse" : "bg-teal-400"}`} />
+                    <span className={`text-xs font-medium ${isStreaming ? "text-amber-400" : "text-teal-400"}`}>
                       {isStreaming ? "Typing..." : "Online"}
                     </span>
                   </div>
@@ -293,14 +293,14 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
             <div className="flex items-center gap-2">
               <button
                 onClick={clearChat}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
                 title="Clear Chat"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/10 transition-all"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -318,7 +318,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                 <div
                   className={`w-8 h-8 rounded-2xl shrink-0 flex items-center justify-center ${
                     msg.role === "user"
-                      ? "bg-indigo-600"
+                      ? "bg-rose-600"
                       : "bg-gradient-to-br from-purple-600 to-pink-600"
                   }`}
                 >
@@ -361,7 +361,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                         <span className="inline-block w-0.5 h-4 bg-purple-400 ml-0.5 align-middle animate-pulse" />
                       )}
                   </div>
-                  <p className="text-xs text-slate-600 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p className="text-xs text-stone-600 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {formatTime(msg.timestamp)}
                   </p>
                 </div>
@@ -414,7 +414,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                 placeholder="Ask about PCOS..."
                 rows={1}
                 disabled={isStreaming}
-                className="flex-1 bg-transparent text-sm text-white placeholder-slate-500 resize-none focus:outline-none max-h-24 leading-relaxed disabled:opacity-50"
+                className="flex-1 bg-transparent text-sm text-white placeholder-stone-500 resize-none focus:outline-none max-h-24 leading-relaxed disabled:opacity-50"
                 style={{ scrollbarWidth: "none" }}
               />
               <button
@@ -443,9 +443,9 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                 )}
               </button>
             </div>
-            <p className="text-center text-xs text-slate-600 mt-2">
-              <kbd className="px-1 py-0.5 rounded text-slate-500 bg-white/5 text-xs">Enter</kbd> to send ·{" "}
-              <kbd className="px-1 py-0.5 rounded text-slate-500 bg-white/5 text-xs">Shift+Enter</kbd> for new line
+            <p className="text-center text-xs text-stone-600 mt-2">
+              <kbd className="px-1 py-0.5 rounded text-stone-500 bg-white/5 text-xs">Enter</kbd> to send ·{" "}
+              <kbd className="px-1 py-0.5 rounded text-stone-500 bg-white/5 text-xs">Shift+Enter</kbd> for new line
             </p>
           </div>
         </div>
