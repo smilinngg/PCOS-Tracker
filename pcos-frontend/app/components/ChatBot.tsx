@@ -18,6 +18,13 @@ const SUGGESTED_QUESTIONS = [
   "Can PCOS affect fertility?",
 ]
 
+const CYCLE_SUGGESTED_QUESTIONS = [
+  "When is my next period?",
+  "What was my last period date?",
+  "When is my ovulation window?",
+  "What cycle day am I on today?",
+]
+
 interface ChatBotProps {
   cycleAware?: boolean
 }
@@ -373,7 +380,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
           {/* Suggested Questions - shown only on first message */}
           {messages.length === 1 && !isStreaming && (
             <div className="px-4 pb-2 flex flex-wrap gap-2">
-              {SUGGESTED_QUESTIONS.map((q) => (
+              {(cycleAware ? CYCLE_SUGGESTED_QUESTIONS : SUGGESTED_QUESTIONS).map((q) => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
@@ -411,7 +418,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about PCOS..."
+                placeholder={cycleAware ? "Ask about your period, ovulation, cycle day..." : "Ask about PCOS..."}
                 rows={1}
                 disabled={isStreaming}
                 className="flex-1 bg-transparent text-sm text-white placeholder-stone-500 resize-none focus:outline-none max-h-24 leading-relaxed disabled:opacity-50"

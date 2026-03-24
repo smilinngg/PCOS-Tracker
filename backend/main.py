@@ -207,22 +207,39 @@ def chat(data: dict = Body(...)):
                     
                     context_str = ""
                     if cycle_data and not cycle_data.get("message") and cycle_data.get("historical_dates"):
-                        prev_dates = cycle_data.get("historical_dates", [])
-                        prev_date_str = prev_dates[-1] if prev_dates else "None"
-                        next_date_str = cycle_data.get("next_predicted", "None")
-                        
+                        historical_dates = cycle_data.get("historical_dates", [])
+                        last_period_date = historical_dates[-1] if historical_dates else "None"
+                        next_predicted_raw = cycle_data.get("next_predicted_raw", cycle_data.get("next_predicted", "None"))
+                        next_predicted_display = cycle_data.get("next_predicted", next_predicted_raw)
+                        ovulation_display = cycle_data.get("ovulation_date_display", cycle_data.get("ovulation_date", "None"))
+                        avg_cycle = cycle_data.get("average_cycle", "Unknown")
+                        cycle_day = cycle_data.get("cycle_day", "Unknown")
+                        next_period_starts = cycle_data.get("next_period_starts", [])
+                        # Format up to 3 upcoming predicted dates for context
+                        upcoming_dates = ", ".join(next_period_starts[:3]) if next_period_starts else "None"
+
                         context_str = (
-                            f"\n\n[USER'S CYCLE CONTEXT]\n"
-                            f"Previous exact logged date: {prev_date_str}\n"
-                            f"Next predicted period date: {next_date_str}\n"
-                            f"If the user asks to tell them the next predicted period date, explicitly answer with the previous exact date AND predicted date based on this context data. "
-                            f"If they ask to search the exact date in the calendar, use this data to inform them."
+                            f"\n\n[USER'S CYCLE DATA - USE THIS TO ANSWER DATE QUESTIONS]\n"
+                            f"• Last logged period date: {last_period_date}\n"
+                            f"• All historical logged dates: {', '.join(historical_dates[-5:]) if historical_dates else 'None'}\n"
+                            f"• Next predicted period: {next_predicted_display} (exact: {next_predicted_raw})\n"
+                            f"• Upcoming predicted period dates: {upcoming_dates}\n"
+                            f"• Ovulation window: around {ovulation_display}\n"
+                            f"• Average cycle length: {avg_cycle} days\n"
+                            f"• Current cycle day: {cycle_day}\n\n"
+                            f"CRITICAL INSTRUCTION: If the user asks 'what is my next period date', 'when is my next period', "
+                            f"'tell me my predicted period date', or anything similar — you MUST explicitly state: "
+                            f"'Your next predicted period is on {next_predicted_display}.' "
+                            f"If they ask 'what was my last period date' or 'previous period date' — explicitly say: "
+                            f"'Your last logged period date was {last_period_date}.' "
+                            f"Always answer date questions using ONLY the data above, never guess or make up dates."
                         )
                     else:
                         context_str = (
                             "\n\n[USER'S CYCLE CONTEXT]\n"
                             "The user has NOT logged enough period dates yet.\n"
-                            "WARNING INSTRUCTION: If the user asks about their cycle or dates, warmly tell them you cannot search for it because they haven't logged dates. Give a warning that this may cause a problem if periods are missed, and ask the user to give the PCOS assessment inside the app."
+                            "WARNING INSTRUCTION: If the user asks about their cycle or dates, warmly tell them you cannot find their dates because they haven't logged periods yet. "
+                            "Encourage them to log at least 2 periods on the Period Tracker calendar to enable predictions."
                         )
 
                     system_prompt = (
@@ -410,9 +427,17 @@ def get_cycle_info(email: str):
     ovulation_window_starts = [(o - timedelta(days=2)).strftime("%Y-%m-%d") for o in future_ovulations]
     ovulation_window_ends = [(o + timedelta(days=2)).strftime("%Y-%m-%d") for o in future_ovulations]
 
-    # For singular endpoints like UI dashboards relying on scalar 
     next_period_date = future_periods[0]
     ovulation_date = future_ovulations[0]
+
+    # Dynamically find the TRUE next upcoming period (skipping ones in the past if user stopped logging)
+    today_date = datetime.now()
+    for i in range(len(future_periods)):
+        if future_periods[i] >= today_date - timedelta(days=5):
+            next_period_date = future_periods[i]
+            ovulation_date = future_ovulations[i]
+            break
+
     ovulation_start = ovulation_date - timedelta(days=2)
     ovulation_end = ovulation_date + timedelta(days=2)
 

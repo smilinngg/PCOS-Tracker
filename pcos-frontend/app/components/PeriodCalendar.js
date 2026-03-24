@@ -3,8 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, eachDayOfInterval, parse, differenceInDays } from "date-fns";
 import { CheckCircle2, TrendingUp, AlertTriangle, RefreshCw, Calendar as CalendarIcon, Droplets, ChevronLeft, ChevronRight, Heart, Zap, Activity } from "lucide-react";
+import { useCycleInfo } from "../context/CycleContext";
 
 export default function PeriodCalendar({ email }) {
+  const { fetchCycleInfo } = useCycleInfo();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState([]);
   const [pastDates, setPastDates] = useState([]);
@@ -131,6 +133,7 @@ export default function PeriodCalendar({ email }) {
         setSuccessMsg("✓ Period logged successfully!");
         setSelectedDates([]);
         await fetchData();
+        if (fetchCycleInfo) await fetchCycleInfo(email);
       } else {
         setErrorMsg(data.error || "Failed to log period.");
       }
@@ -151,6 +154,7 @@ export default function PeriodCalendar({ email }) {
         setSuccessMsg("Period removed manually.");
         setTimeout(() => setSuccessMsg(""), 3000);
         await fetchData();
+        if (fetchCycleInfo) await fetchCycleInfo(email);
       } else {
         setErrorMsg("Failed to delete period.");
         setTimeout(() => setErrorMsg(""), 3000);
