@@ -1,0 +1,9 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\asus\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+  "python.languageServer": "Pylance",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.autoImportCompletions": true
+}
