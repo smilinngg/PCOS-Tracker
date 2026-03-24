@@ -198,11 +198,33 @@ def chat(data: dict = Body(...)):
     try:
         user_message = data.get("message", "")
         cycle_aware = data.get("cycleAware", False)
+        cycle_data = data.get("cycleData", {})
 
         def generate():
             try:
                 # Different system prompts based on context
                 if cycle_aware:
+                    
+                    context_str = ""
+                    if cycle_data and not cycle_data.get("message") and cycle_data.get("historical_dates"):
+                        prev_dates = cycle_data.get("historical_dates", [])
+                        prev_date_str = prev_dates[-1] if prev_dates else "None"
+                        next_date_str = cycle_data.get("next_predicted", "None")
+                        
+                        context_str = (
+                            f"\n\n[USER'S CYCLE CONTEXT]\n"
+                            f"Previous exact logged date: {prev_date_str}\n"
+                            f"Next predicted period date: {next_date_str}\n"
+                            f"If the user asks to tell them the next predicted period date, explicitly answer with the previous exact date AND predicted date based on this context data. "
+                            f"If they ask to search the exact date in the calendar, use this data to inform them."
+                        )
+                    else:
+                        context_str = (
+                            "\n\n[USER'S CYCLE CONTEXT]\n"
+                            "The user has NOT logged enough period dates yet.\n"
+                            "WARNING INSTRUCTION: If the user asks about their cycle or dates, warmly tell them you cannot search for it because they haven't logged dates. Give a warning that this may cause a problem if periods are missed, and ask the user to give the PCOS assessment inside the app."
+                        )
+
                     system_prompt = (
                         "You are a supportive menstrual cycle and wellness coach built into the PCOS Prediction App. "
                         "You help users understand their cycle phases and provide natural wellness guidance. "
@@ -215,7 +237,7 @@ def chat(data: dict = Body(...)):
                         "Also explain how regular cycles support fertility and overall health. "
                         "If they ask about PCOS assessment, tell them to use the Period Tracker dashboard to log dates and assess risk. "
                         "Always be encouraging and emphasize listening to their body's natural rhythms."
-                    )
+                    ) + context_str
                 else:
                     system_prompt = (
                         "You are a concise and helpful PCOS health assistant built into the PCOS Prediction App. "
@@ -301,6 +323,11 @@ def log_period(data: dict = Body(...)):
 
     return {"message": "Period logged successfully"}
 
+@app.delete("/period-history/{email}/{start_date}")
+def delete_period_record(email: str, start_date: str):
+    res = periods_collection.delete_one({"email": email, "start_date": start_date})
+    return {"message": "Deleted successfully", "deleted": res.deleted_count > 0}
+
 @app.get("/period-history/{email}")
 def get_period_history(email: str):
     records = list(
@@ -350,23 +377,49 @@ def get_cycle_info(email: str):
             "pcos_symptom_status": "Not enough data to determine"
         }
 
-    avg_cycle = sum(cycles) / len(cycles)
-    is_irregular = avg_cycle > 35 or avg_cycle < 21
+    # Use LAST 3 cycles for average as per advanced tracking strategy
+    recent_cycles = cycles[-3:] if len(cycles) >= 3 else cycles
+    avg_cycle = sum(recent_cycles) / len(recent_cycles)
 
-    # Calculate next predicted date based on the latest period
+    # Calculate latest start
     latest_start = datetime.strptime(valid_records[-1]["start_date"], "%Y-%m-%d")
-    next_period_date = latest_start + timedelta(days=int(avg_cycle))
-    
-    # Calculate ovulation date (typically 14 days before next period)
-    # This is the most common ovulation window
-    ovulation_date = next_period_date - timedelta(days=14)
-    
-    # Ovulation window is typically 5 days (from -2 to +2 days of ovulation)
+
+    # Identify if they are currently missing their period
+    days_since_latest = (datetime.now() - latest_start).days
+    currently_missing_risk = days_since_latest > (avg_cycle + 10)
+
+    # Calculate cycle day (1-based: day 1 is first day of period)
+    cycle_day = (days_since_latest % int(avg_cycle)) + 1 if days_since_latest >= 0 else 1
+
+    is_irregular = avg_cycle > 35 or avg_cycle < 21 or currently_missing_risk
+
+    # Calculate 24 future period and ovulation windows (2 years) iteratively
+    # This ensures we have predictions for all months including if some are skipped
+    future_periods = []
+    future_ovulations = []
+    current_proj_date = latest_start
+
+    # Generate 24 months of predictions to cover all possible scenarios
+    for _ in range(24): 
+        current_proj_date = current_proj_date + timedelta(days=int(avg_cycle))
+        future_periods.append(current_proj_date)
+        future_ovulations.append(current_proj_date - timedelta(days=14))
+
+    next_period_starts = [p.strftime("%Y-%m-%d") for p in future_periods]
+    next_period_ends = [(p + timedelta(days=5)).strftime("%Y-%m-%d") for p in future_periods]
+    ovulation_window_starts = [(o - timedelta(days=2)).strftime("%Y-%m-%d") for o in future_ovulations]
+    ovulation_window_ends = [(o + timedelta(days=2)).strftime("%Y-%m-%d") for o in future_ovulations]
+
+    # For singular endpoints like UI dashboards relying on scalar 
+    next_period_date = future_periods[0]
+    ovulation_date = future_ovulations[0]
     ovulation_start = ovulation_date - timedelta(days=2)
     ovulation_end = ovulation_date + timedelta(days=2)
-    
-    # Determine PCOS symptom status based on cycle regularity
-    if is_irregular:
+
+    if currently_missing_risk:
+        pcos_status = "You've missed your expected period! Please take the Assessment."
+        has_pcos_risk = True
+    elif is_irregular:
         pcos_status = "Your cycle is irregular. You may have PCOS symptoms."
         has_pcos_risk = True
     else:
@@ -376,6 +429,7 @@ def get_cycle_info(email: str):
     return {
         "cycles": cycles,
         "average_cycle": float(f"{avg_cycle:.1f}"),
+        "cycle_day": int(cycle_day),
         "irregular": is_irregular,
         "next_predicted": next_period_date.strftime("%d %B"),
         "next_predicted_raw": next_period_date.strftime("%Y-%m-%d"),
@@ -385,6 +439,10 @@ def get_cycle_info(email: str):
         "ovulation_date_display": ovulation_date.strftime("%d %B"),
         "ovulation_window_start": ovulation_start.strftime("%Y-%m-%d"),
         "ovulation_window_end": ovulation_end.strftime("%Y-%m-%d"),
+        "next_period_starts": next_period_starts,
+        "next_period_ends": next_period_ends,
+        "ovulation_window_starts": ovulation_window_starts,
+        "ovulation_window_ends": ovulation_window_ends,
         "pcos_symptom_status": pcos_status,
         "has_pcos_risk": has_pcos_risk,
         "historical_dates": historical_dates

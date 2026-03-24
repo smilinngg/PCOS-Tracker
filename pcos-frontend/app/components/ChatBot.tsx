@@ -89,7 +89,7 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: messageText, cycleAware }),
+        body: JSON.stringify({ message: messageText, cycleAware, cycleData: cycleInfo }),
         signal: abortControllerRef.current.signal,
       })
 

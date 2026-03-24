@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { HeartPulse, Calendar, AlertTriangle, CheckCircle2 } from "lucide-react"
+import Link from "next/link"
 import ChatBot from "../components/ChatBot"
 import PeriodCalendar from "../components/PeriodCalendar"
 import { useCycleInfo } from "../context/CycleContext"
@@ -110,9 +111,36 @@ export default function Dashboard() {
                     )}
                   </div>
                   <p className="text-xs text-stone-500 mt-1">{cycleInfo.average_cycle?.toFixed(1)} days avg</p>
+                  {cycleInfo.irregular && (
+                    <Link href="/assessment" className="block mt-3 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900/50 transition-colors group">
+                      ⚠️ Medical Risk Detected <br/>
+                      <span className="font-normal opacity-90 block mt-0.5">Please take the PCOS Assessment</span>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
+
+            {/* Cycle Regularity Chart */}
+            {cycleInfo?.cycles && cycleInfo.cycles.length > 0 && (
+              <div className="bg-white dark:bg-stone-900 border-2 border-stone-200 dark:border-stone-800 rounded-2xl p-5 shadow-sm col-span-1 sm:col-span-2 md:col-span-3 mt-4">
+                <h3 className="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-6">Cycle Regularity Graph</h3>
+                <div className="flex items-end gap-3 h-32 w-full border-b border-stone-100 dark:border-stone-800 pb-2">
+                   {cycleInfo.cycles.slice(-10).map((length: number, i: number) => {
+                     const heightPercentage = Math.min(100, Math.max(10, (length / 45) * 100));
+                     return (
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end gap-2 relative group h-full">
+                        <span className="text-xs font-bold text-stone-600 dark:text-stone-300 absolute -top-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">{length}d</span>
+                        <div 
+                           className="w-full bg-gradient-to-t from-rose-300 to-rose-400 dark:from-rose-600 dark:to-rose-500 rounded-t-md hover:opacity-80 transition-all cursor-pointer" 
+                           style={{ height: `${heightPercentage}%` }}
+                        ></div>
+                        <span className="text-[10px] text-stone-400 absolute -bottom-5">C{i+1}</span>
+                      </div>
+                   )})}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
