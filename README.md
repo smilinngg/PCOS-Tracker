@@ -45,7 +45,7 @@ An end-to-end Machine Learning + Full Stack application that predicts PCOS risk 
 ## 📊 Model Details
 
 - Algorithm: Random Forest
-- Accuracy: 86%
+- Accuracy: 84%
 - Cross-validation used for evaluation
 - Feature Importance used for interpretability
 
