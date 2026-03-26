@@ -2,7 +2,8 @@
 
 import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ActivitySquare, Lock, Mail, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { Lock, Mail, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react"
+import Image from "next/image"
 
 function LoginForm() {
   const router = useRouter()
@@ -47,8 +48,8 @@ function LoginForm() {
   return (
     <>
       <div className="text-center mb-8">
-        <div className="inline-flex p-3 bg-rose-100 dark:bg-rose-900/50 rounded-2xl mb-4">
-          <ActivitySquare className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+        <div className="inline-flex p-1.5 bg-rose-100 dark:bg-rose-900/50 rounded-2xl mb-4 shadow-sm shadow-rose-500/20">
+          <Image src="/logo.png" alt="PCOSPredict Logo" width={64} height={64} className="rounded-xl" />
         </div>
         <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white">Welcome Back</h1>
         <p className="text-stone-500 dark:text-stone-400 mt-2">Log in to your PCOS tracking dashboard.</p>

@@ -1,9 +1,10 @@
 "use client"
 
 import { useRouter, usePathname } from "next/navigation"
-import { Calendar, Stethoscope, LogOut, HeartPulse } from "lucide-react"
+import { Calendar, Stethoscope, LogOut } from "lucide-react"
 import { useState, useEffect } from "react"
 import ThemeToggle from "./ThemeToggle"
+import Image from "next/image"
 
 export default function Navbar() {
   const router = useRouter()
@@ -34,9 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-pink-100 dark:bg-pink-900/50 rounded-lg">
-            <HeartPulse className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-          </div>
+          <Image src="/logo.png" alt="PCOSPredict Logo" width={44} height={44} className="rounded-xl shadow-sm shadow-pink-500/10" />
           <h1 className="text-xl font-bold text-stone-900 dark:text-white">
             PCOS <span className="text-pink-600 dark:text-pink-400">Tracker</span>
           </h1>

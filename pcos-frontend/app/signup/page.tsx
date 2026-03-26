@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ActivitySquare, Lock, Mail, User, Phone, ArrowRight, AlertTriangle } from "lucide-react"
+import { Lock, Mail, User, Phone, ArrowRight, AlertTriangle } from "lucide-react"
+import Image from "next/image"
 
 export default function Signup() {
   const router = useRouter()
@@ -42,8 +43,8 @@ export default function Signup() {
       <div className="max-w-md w-full bg-white dark:bg-stone-900 shadow-xl rounded-3xl p-8 border border-white/50 dark:border-stone-800">
         
         <div className="text-center mb-8">
-          <div className="inline-flex p-3 bg-pink-100 dark:bg-pink-900/50 rounded-2xl mb-4">
-            <ActivitySquare className="w-8 h-8 text-pink-600 dark:text-pink-400" />
+          <div className="inline-flex p-1.5 bg-pink-100 dark:bg-pink-900/50 rounded-2xl mb-4 shadow-sm shadow-pink-500/20">
+            <Image src="/logo.png" alt="PCOSPredict Logo" width={64} height={64} className="rounded-xl" />
           </div>
           <h1 className="text-3xl font-extrabold text-stone-900 dark:text-white">Create Account</h1>
           <p className="text-stone-500 dark:text-stone-400 mt-2">Join to track your PCOS risk & health metrics.</p>
