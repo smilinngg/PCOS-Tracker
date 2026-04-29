@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PCOSPredict – AI Women's Health Platform",
   description: "Assess your PCOS risk, track your menstrual cycle, and get AI-powered health insights — free, private, and secure.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
