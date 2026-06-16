@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
-from database import predictions_collection, users_collection, health_records_collection, periods_collection, client
+from .database import predictions_collection, users_collection, health_records_collection, periods_collection, client
 import bcrypt
 import jwt
 from typing import Optional
