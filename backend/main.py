@@ -3,14 +3,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
-from .database import (
-    predictions_collection,
-    users_collection,
-    health_records_collection,
-    periods_collection,
-    pregnancy_records_collection,
-    client,
-)
+try:
+    from .database import (
+        predictions_collection,
+        users_collection,
+        health_records_collection,
+        periods_collection,
+        pregnancy_records_collection,
+        client,
+    )
+except ImportError:
+    from database import (
+        predictions_collection,
+        users_collection,
+        health_records_collection,
+        periods_collection,
+        pregnancy_records_collection,
+        client,
+    )
 import bcrypt
 import jwt
 from typing import Optional, List
