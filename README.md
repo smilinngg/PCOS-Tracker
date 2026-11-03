@@ -1,99 +1,98 @@
-# 🩺 PCOS Tracker
+# PCOS Tracker
 
-An end-to-end Machine Learning + Full Stack application that predicts PCOS risk based on health metrics and menstrual cycle data.
+PCOS Tracker is a full-stack women's health application that combines Machine Learning and Generative AI to help users monitor menstrual cycles, assess potential PCOS risks, track ovulation, and access personalized health information.
 
----
+## Features
 
-## 🚀 Features
+- **PCOS Risk Prediction:** Uses a Random Forest classification model to assess potential PCOS risk based on clinical and lifestyle-related features.
+- **Menstrual Cycle Tracking:** Tracks period dates, cycle length, estimated ovulation, and fertile windows.
+- **Pregnancy Assessment:** Provides preliminary pregnancy likelihood estimates using menstrual history and conception-related information.
+- **AI Health Assistant:** Uses LLaMA 3 through Ollama to generate contextual health guidance based on user cycle information.
+- **User Authentication:** Secure user authentication and account management.
+- **Health Records:** Stores user profiles, menstrual logs, and assessment history.
 
-- 🔍 AI-based PCOS Risk Prediction
-- 📅 Period Tracking System
-- 📊 Risk Percentage + Classification (Low / Moderate / High)
-- 🧠 Feature Engineering (Cycle Irregularity Detection)
-- 🗂️ Prediction History Tracking
-- 🔐 User Authentication (JWT)
+## Machine Learning
 
----
+The PCOS prediction model uses the Random Forest algorithm.
 
-## 🧠 Tech Stack
+- Dataset: 541 patient records
+- PCOS-positive records: 177
+- Healthy records: 364
+- Input features: 11
+- Cross-validation accuracy: 84.10% ± 3.38%
+- Cross-validation ROC-AUC: 0.8795
+- Hold-out test accuracy: 83.49%
 
-### Frontend
-- Next.js
-- Tailwind CSS
+## Tech Stack
 
-### Backend
-- FastAPI
-- MongoDB
+| Category | Technologies |
+|---|---|
+| Frontend | Next.js, React.js, Tailwind CSS |
+| Backend | Python, FastAPI |
+| Machine Learning | Scikit-learn, Random Forest |
+| Generative AI | LLaMA 3, Ollama |
+| Database | MongoDB Atlas |
+| Authentication | JWT, Bcrypt |
+| Streaming | Server-Sent Events (SSE) |
 
-### Machine Learning
-- Random Forest Classifier
-- Scikit-learn
-- Pandas, NumPy
+## Project Architecture
 
----
+```mermaid
+graph TD
+    A[Next.js Frontend] --> B[FastAPI Backend]
+    B --> C[Random Forest ML Model]
+    B --> D[Cycle Prediction]
+    B --> E[Pregnancy Assessment]
+    B --> F[LLaMA 3 via Ollama]
+    B --> G[(MongoDB Atlas)]
+```
 
-## ⚙️ How It Works
+## Installation
 
-1. User inputs health data
-2. Backend processes features
-3. ML model predicts risk probability
-4. Risk is adjusted using medical rules
-5. Results displayed on dashboard
+### 1. Clone the repository
 
----
-
-## 📊 Model Details
-
-- Algorithm: Random Forest
-- Accuracy: 84%
-- Cross-validation used for evaluation
-- Feature Importance used for interpretability
-
----
-
-## 🧪 Key Features Used
-
-- Age
-- BMI
-- Cycle Length
-- Weight Gain
-- Hair Growth
-- Skin Darkening
-- Pimples
-- Fast Food Consumption
-
----
-
-## ⚠️ Disclaimer
-
-This is not a medical diagnosis tool. It is built for educational and awareness purposes only.
-
----
-
-## 🛠️ Setup Instructions
-
-### Backend
 ```bash
-cd backend
+git clone <your-repository-url>
+cd pcos-tracker
+```
+
+### 2. Install frontend dependencies
+
+```bash
+npm install
+```
+
+### 3. Install backend dependencies
+
+```bash
 pip install -r requirements.txt
+```
+
+### 4. Run the application
+
+Start the backend:
+
+```bash
 uvicorn main:app --reload
 ```
 
-### Frontend
+Start the frontend:
+
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
 
----
+Make sure MongoDB Atlas and Ollama are configured before running the application.
 
-## 📌 Future Improvements
+## Disclaimer
 
-- Wearable device integration
-- Doctor consultation system
-- Explainable AI (SHAP)
-- Mobile app version
+PCOS Tracker is intended for educational and informational purposes only. Its predictions are not medical diagnoses or a substitute for professional medical advice.
+
+## Author
+
+**Shravani Bhalerao**
+
+[GitHub](https://github.com/smilinngg) | [LinkedIn](https://www.linkedin.com/in/shravani-bhalerao-8b45b5293/)
 
 ---
 
