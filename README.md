@@ -1,4 +1,4 @@
-# 🩺 PCOS Risk Prediction System
+# 🩺 PCOS Tracker
 
 An end-to-end Machine Learning + Full Stack application that predicts PCOS risk based on health metrics and menstrual cycle data.
 
