@@ -30,8 +30,23 @@ export default function Dashboard() {
 
   if (!user) return <div className="min-h-screen bg-stone-50 dark:bg-stone-950"></div>
 
+  // Calculate if period is overdue
+  let daysOverdue = 0
+  if (cycleInfo && cycleInfo.next_predicted_raw) {
+    try {
+      const nextDate = new Date(cycleInfo.next_predicted_raw)
+      const today = new Date()
+      nextDate.setHours(0, 0, 0, 0)
+      today.setHours(0, 0, 0, 0)
+      const diff = Math.round((today.getTime() - nextDate.getTime()) / (1000 * 3600 * 24))
+      if (diff > 0) daysOverdue = diff
+    } catch (e) {
+      // ignore
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 dark:from-stone-950 dark:via-stone-900 dark:to-rose-950 transition-colors duration-500 pt-24 p-4 sm:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 dark:from-stone-950 dark:via-stone-900 dark:to-rose-950 transition-colors duration-500 pt-32 sm:pt-36 pb-20 p-4 sm:p-8 font-sans">
       
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
@@ -42,6 +57,31 @@ export default function Dashboard() {
             Log your menstrual cycle dates and track ovulation for natural fertility planning
           </p>
         </div>
+
+        {/* Overdue Period Smart Alert */}
+        {daysOverdue > 0 && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-amber-500/10 border border-pink-200 dark:border-pink-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-pink-100 dark:bg-pink-900/40 rounded-xl text-pink-600 dark:text-pink-300">
+                <HeartPulse className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-stone-900 dark:text-white">
+                  Expected period is {daysOverdue} {daysOverdue === 1 ? "day" : "days"} overdue
+                </h4>
+                <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
+                  Could it be delayed ovulation from PCOS, or early conception?
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/pregnancy-check"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl transition-all shadow-sm shrink-0"
+            >
+              Check Pregnancy Probability &rarr;
+            </Link>
+          </div>
+        )}
 
         {/* Cycle Info Card */}
         {cycleInfo && !cycleInfo.message && (
@@ -112,10 +152,14 @@ export default function Dashboard() {
                   </div>
                   <p className="text-xs text-stone-500 mt-1">{cycleInfo.average_cycle?.toFixed(1)} days avg</p>
                   {cycleInfo.irregular && (
-                    <Link href="/assessment" className="block mt-3 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900/50 transition-colors group">
-                      ⚠️ Medical Risk Detected <br/>
-                      <span className="font-normal opacity-90 block mt-0.5">Please take the PCOS Assessment</span>
-                    </Link>
+                    <div className="mt-3 space-y-1.5">
+                      <Link href="/assessment" className="block text-xs font-semibold text-rose-600 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200 bg-rose-50 dark:bg-rose-950/40 p-2 rounded-lg border border-rose-100 dark:border-rose-900/50 transition-colors">
+                        ⚠️ Medical Risk: PCOS Assessment
+                      </Link>
+                      <Link href="/pregnancy-check" className="block text-xs font-semibold text-pink-600 dark:text-pink-300 hover:text-pink-700 dark:hover:text-pink-200 bg-pink-50 dark:bg-pink-950/40 p-2 rounded-lg border border-pink-100 dark:border-pink-900/50 transition-colors">
+                        🌸 Period Overdue: Check Pregnancy
+                      </Link>
+                    </div>
                   )}
                 </div>
               </div>

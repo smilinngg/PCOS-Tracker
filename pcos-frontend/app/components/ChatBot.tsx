@@ -92,11 +92,18 @@ export default function ChatBot({ cycleAware = false }: ChatBotProps) {
 
     try {
       abortControllerRef.current = new AbortController()
+      const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null
+      const userData = storedUser ? JSON.parse(storedUser) : null
 
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: messageText, cycleAware, cycleData: cycleInfo }),
+        body: JSON.stringify({
+          message: messageText,
+          cycleAware,
+          cycleData: cycleInfo,
+          user: userData,
+        }),
         signal: abortControllerRef.current.signal,
       })
 

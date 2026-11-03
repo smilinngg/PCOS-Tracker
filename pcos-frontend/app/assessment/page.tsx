@@ -146,7 +146,7 @@ export default function AssessmentPage() {
   if (!user) return <div className="min-h-screen bg-stone-50 dark:bg-stone-950"></div>
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 dark:from-stone-950 dark:via-stone-900 dark:to-rose-950 transition-colors duration-500 pt-24 p-4 sm:p-8 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 dark:from-stone-950 dark:via-stone-900 dark:to-rose-950 transition-colors duration-500 pt-32 sm:pt-36 pb-20 p-4 sm:p-8 font-sans">
       
       <div className="max-w-[1400px] mx-auto px-4 w-full">
         <div className="mb-8">

@@ -77,13 +77,23 @@ function LoginForm() {
           <input required type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full bg-stone-50 dark:bg-stone-800 pl-10 pr-4 py-3 rounded-xl border border-stone-200 dark:border-stone-700 outline-none focus:ring-2 focus:ring-rose-500 transition-shadow" />
         </div>
 
-        <button disabled={loading} type="submit" className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-4 flex items-center justify-center gap-2">
+        <div className="flex justify-end pt-0.5">
+          <button
+            type="button"
+            onClick={() => router.push('/forgot-password')}
+            className="text-xs sm:text-sm font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-500 hover:underline transition-colors cursor-pointer"
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        <button disabled={loading} type="submit" className="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl transition-all duration-300 mt-2 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
           {loading ? "Logging in..." : <>Continue to Dashboard <ArrowRight className="w-5 h-5" /></>}
         </button>
       </form>
 
       <p className="text-center mt-6 text-sm text-stone-500 dark:text-stone-400">
-        Don&apos;t have an account? <button onClick={() => router.push('/signup')} className="text-rose-600 dark:text-rose-400 font-bold hover:underline">Sign up</button>
+        Don&apos;t have an account? <button onClick={() => router.push('/signup')} className="text-rose-600 dark:text-rose-400 font-bold hover:underline cursor-pointer">Sign up</button>
       </p>
     </>
   )
