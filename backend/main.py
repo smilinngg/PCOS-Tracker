@@ -3,11 +3,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import numpy as np
-from database import predictions_collection, users_collection, health_records_collection, periods_collection, client
+from .database import (
+    predictions_collection,
+    users_collection,
+    health_records_collection,
+    periods_collection,
+    pregnancy_records_collection,
+    client,
+)
 import bcrypt
 import jwt
-from typing import Optional
-from datetime import datetime
+from typing import Optional, List
+from datetime import datetime, timedelta
+import os
+import re
 
 app = FastAPI()
 
@@ -25,7 +34,8 @@ def shutdown_event():
     client.close()
 
 # Load model artifact (contains both model and feature list)
-artifact = joblib.load("pcos_model.pkl")
+model_path = os.path.join(os.path.dirname(__file__), "pcos_model.pkl")
+artifact = joblib.load(model_path)
 model = artifact["model"]
 MODEL_FEATURES = artifact["features"]
 feature_importance = dict(zip(MODEL_FEATURES, model.feature_importances_))
@@ -43,24 +53,42 @@ class LoginModel(BaseModel):
     email: str
     password: str
 
+class VerifyAccountModel(BaseModel):
+    email: str
+
+class ResetPasswordModel(BaseModel):
+    email: str
+    phone: Optional[str] = None
+    new_password: str
+
+class PregnancyAssessmentModel(BaseModel):
+    email: Optional[str] = None
+    days_late: int = 0
+    unprotected_intercourse: bool = False
+    symptoms: List[str] = []
+    test_result: Optional[str] = "not_taken"
+    has_pcos: Optional[bool] = False
+    last_period_date: Optional[str] = None
+
 @app.get("/")
 def home():
     return {"message": "PCOS API running"}
 
 @app.post("/signup")
 def signup(user: SignupModel):
-    existing_user = users_collection.find_one({"email": user.email})
+    clean_email = user.email.strip().lower()
+    existing_user = users_collection.find_one({"email": {"$regex": f"^{re.escape(clean_email)}$", "$options": "i"}})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     
     new_user = {
-        "name": user.name,
-        "email": user.email,
+        "name": user.name.strip(),
+        "email": clean_email,
         "password": hashed_password,
         "age": user.age,
-        "phone": user.phone
+        "phone": user.phone.strip()
     }
     
     result = users_collection.insert_one(new_user)
@@ -68,7 +96,8 @@ def signup(user: SignupModel):
 
 @app.post("/login")
 def login(user: LoginModel):
-    db_user = users_collection.find_one({"email": user.email})
+    clean_email = user.email.strip().lower()
+    db_user = users_collection.find_one({"email": {"$regex": f"^{re.escape(clean_email)}$", "$options": "i"}})
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
     
@@ -86,6 +115,69 @@ def login(user: LoginModel):
             "age": db_user["age"]
         }
     }
+
+@app.post("/verify-reset-email")
+def verify_reset_email(data: VerifyAccountModel):
+    email = data.email.strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Please provide an email address")
+    
+    db_user = users_collection.find_one({"email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="No account registered with this email address")
+    
+    has_phone = bool(db_user.get("phone"))
+    masked_phone = ""
+    if has_phone:
+        raw_phone = str(db_user.get("phone")).strip()
+        if len(raw_phone) >= 4:
+            masked_phone = "••••••" + raw_phone[-4:]
+        else:
+            masked_phone = "••••"
+            
+    return {
+        "exists": True,
+        "name": db_user.get("name", "User"),
+        "has_phone": has_phone,
+        "masked_phone": masked_phone
+    }
+
+@app.post("/reset-password")
+def reset_password(data: ResetPasswordModel):
+    email = data.email.strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+        
+    db_user = users_collection.find_one({"email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="No account found with this email address")
+    
+    # Check phone number verification if account has a registered phone number
+    db_phone = str(db_user.get("phone", "")).strip()
+    if db_phone:
+        if not data.phone:
+            raise HTTPException(status_code=400, detail="Please provide your registered phone number for verification")
+        
+        # Compare normalized digits
+        clean_input = "".join(filter(str.isdigit, data.phone))
+        clean_db = "".join(filter(str.isdigit, db_phone))
+        if clean_input and clean_db:
+            if clean_input != clean_db:
+                raise HTTPException(status_code=400, detail="Phone number does not match our records for this account")
+        elif data.phone.strip() != db_phone:
+            raise HTTPException(status_code=400, detail="Phone number does not match our records for this account")
+
+    if not data.new_password or len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters long")
+    
+    hashed_password = bcrypt.hashpw(data.new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    users_collection.update_one(
+        {"_id": db_user["_id"]},
+        {"$set": {"password": hashed_password}}
+    )
+    
+    return {"message": "Password updated successfully"}
 
 @app.post("/predict")
 def predict(data: dict = Body(...)):
@@ -188,6 +280,373 @@ def get_history(email: str):
     records = list(cursor)
     return {"history": records}
 
+def calculate_user_cycle_summary(email: str):
+    if not email:
+        return None
+    records = list(periods_collection.find({"email": email}).sort("start_date", 1))
+    valid_records = [r for r in records if r.get("start_date")]
+    if len(valid_records) < 2:
+        if valid_records:
+            latest_start = datetime.strptime(valid_records[-1]["start_date"], "%Y-%m-%d")
+            days_since = (datetime.now() - latest_start).days
+            return {
+                "has_enough_data": False,
+                "latest_period_start": valid_records[-1]["start_date"],
+                "days_since_latest": days_since,
+                "average_cycle": 28.0,
+                "is_irregular": False,
+                "days_overdue": max(0, days_since - 28)
+            }
+        return None
+
+    cycles = []
+    for idx, r in enumerate(valid_records):
+        if idx > 0:
+            prev = datetime.strptime(valid_records[idx-1]["start_date"], "%Y-%m-%d")
+            curr = datetime.strptime(valid_records[idx]["start_date"], "%Y-%m-%d")
+            cycle_length = (curr - prev).days
+            if cycle_length > 10:
+                cycles.append(cycle_length)
+
+    if not cycles:
+        return None
+
+    recent_cycles = cycles[-3:] if len(cycles) >= 3 else cycles
+    avg_cycle = sum(recent_cycles) / len(recent_cycles)
+    latest_start = datetime.strptime(valid_records[-1]["start_date"], "%Y-%m-%d")
+    days_since_latest = (datetime.now() - latest_start).days
+    days_overdue = max(0, days_since_latest - int(avg_cycle))
+    is_irregular = avg_cycle > 35 or avg_cycle < 21 or (days_since_latest > avg_cycle + 10)
+
+    return {
+        "has_enough_data": True,
+        "latest_period_start": valid_records[-1]["start_date"],
+        "days_since_latest": days_since_latest,
+        "average_cycle": round(avg_cycle, 1),
+        "is_irregular": is_irregular,
+        "days_overdue": days_overdue
+    }
+
+def get_user_pcos_summary(email: str):
+    if not email:
+        return None
+    latest_record = health_records_collection.find_one({"email": email}, sort=[("_id", -1)])
+    if not latest_record:
+        return None
+
+    symptoms_found = []
+    if latest_record.get("hair_growth"):
+        symptoms_found.append("Hirsutism / Facial Hair")
+    if latest_record.get("skin_darkening"):
+        symptoms_found.append("Skin Darkening")
+    if latest_record.get("hair_loss"):
+        symptoms_found.append("Hair Loss")
+    if latest_record.get("pimples"):
+        symptoms_found.append("Acne / Pimples")
+    if latest_record.get("weight_gain"):
+        symptoms_found.append("Weight Gain")
+
+    return {
+        "has_record": True,
+        "risk_percentage": float(latest_record.get("risk_percentage", 0)),
+        "risk_level": latest_record.get("risk_level", "Unknown"),
+        "bmi": latest_record.get("bmi"),
+        "cycle_length": latest_record.get("cycle_length"),
+        "symptoms": symptoms_found,
+        "assessed_date": latest_record.get("date")
+    }
+
+@app.post("/pregnancy-assess")
+def pregnancy_assess(data: PregnancyAssessmentModel):
+    try:
+        test = (data.test_result or "").strip().lower()
+        basis_factors = []
+
+        # Query database for authentic user history
+        cycle_summary = calculate_user_cycle_summary(data.email) if data.email else None
+        pcos_summary = get_user_pcos_summary(data.email) if data.email else None
+
+        # Reconcile effective days late from period tracker or form input
+        effective_days_late = data.days_late
+        if cycle_summary and cycle_summary.get("has_enough_data"):
+            # If user has period tracker data, reconcile with tracked overdue days
+            tracked_delay = cycle_summary.get("days_overdue", 0)
+            if data.days_late <= 0 and tracked_delay > 0:
+                effective_days_late = tracked_delay
+            elif tracked_delay > 0:
+                # Use tracked delay if closely aligned
+                effective_days_late = max(data.days_late, tracked_delay)
+
+        # 1. BIOLOGICAL PREREQUISITE: Intercourse Timing
+        # Without intercourse during fertile window, conception is biologically impossible (<1%)
+        if not data.unprotected_intercourse and test not in ["positive", "faint_positive"]:
+            final_probability = 0.5
+            likelihood_category = "Extremely Unlikely (< 1%)"
+            status_color = "teal"
+            basis_factors.append({
+                "factor": "Biological Prerequisite",
+                "weight": "0%",
+                "detail": "No unprotected intercourse during fertile window. Conception is biologically impossible."
+            })
+
+            # Check period tracker
+            if cycle_summary:
+                basis_factors.append({
+                    "factor": "Period Tracker Analysis",
+                    "weight": "Tracked",
+                    "detail": f"Last logged period: {cycle_summary['latest_period_start']}. Average cycle: {cycle_summary['average_cycle']}d. You are on Cycle Day {cycle_summary['days_since_latest']}."
+                })
+
+            # Check PCOS assessment
+            if pcos_summary:
+                basis_factors.append({
+                    "factor": "PCOS Assessment Alignment",
+                    "weight": f"{pcos_summary['risk_percentage']}% Risk",
+                    "detail": f"Assessed as {pcos_summary['risk_level']} PCOS ({pcos_summary['risk_percentage']}%) with symptoms: {', '.join(pcos_summary['symptoms']) or 'None logged'}. This confirms your missed period is caused by anovulation."
+                })
+            else:
+                basis_factors.append({
+                    "factor": "Cycle Delay Cause",
+                    "weight": "PCOS / Anovulation",
+                    "detail": "Your missed or delayed period is attributed to delayed ovulation or PCOS hormonal fluctuations."
+                })
+
+            pcos_vs_pregnancy = [
+                "Because you had no unprotected intercourse during your fertile window, pregnancy is ruled out.",
+                "Your delayed period and any symptoms (cramping, breast soreness, fatigue) are characteristic of delayed ovulation (anovulation) caused by PCOS or stress."
+            ]
+            recommendations = [
+                "Continue logging your cycle on the Period Tracker to monitor when ovulation and menstruation resume.",
+                "If your period is delayed by more than 45–60 days, consult your gynecologist to induce withdrawal bleeding with progesterone.",
+                "Focus on stress reduction, balanced blood sugar, and PCOS lifestyle management."
+            ]
+        else:
+            # 2. IF HOME TEST IS POSITIVE:
+            if test == "positive":
+                final_probability = 99.0
+                likelihood_category = "High Likelihood (Confirmed by Test)"
+                status_color = "rose"
+                basis_factors.append({
+                    "factor": "Diagnostic Test",
+                    "weight": "+99%",
+                    "detail": "Positive urine hCG test. Clinical accuracy of modern home tests after a missed period exceeds 99%."
+                })
+            elif test == "faint_positive":
+                final_probability = 92.0
+                likelihood_category = "Probable Positive"
+                status_color = "rose"
+                basis_factors.append({
+                    "factor": "Diagnostic Test",
+                    "weight": "+92%",
+                    "detail": "Faint positive line observed within reading window, typical of early hCG secretion."
+                })
+            else:
+                # 3. STATISTICAL OBSTETRIC FECUNDABILITY MODEL INTEGRATING PERIOD TRACKER & PCOS DATA
+                base_score = 25.0
+                basis_factors.append({
+                    "factor": "Fertile Window Exposure",
+                    "weight": "25% Base",
+                    "detail": "Per published reproductive fecundability models (Wilcox et al. NEJM), peak single-cycle conception probability is 25–30%."
+                })
+
+                # A. PERIOD TRACKER INTEGRATION
+                delay_pts = 0.0
+                if effective_days_late >= 14:
+                    delay_pts = 35.0
+                    delay_desc = f"Period {effective_days_late}+ days overdue (+35%)"
+                elif effective_days_late >= 7:
+                    delay_pts = 25.0
+                    delay_desc = f"Period {effective_days_late} days overdue (+25%)"
+                elif effective_days_late >= 3:
+                    delay_pts = 15.0
+                    delay_desc = f"Period {effective_days_late} days overdue (+15%)"
+                elif effective_days_late >= 1:
+                    delay_pts = 8.0
+                    delay_desc = f"Period {effective_days_late} days overdue (+8%)"
+                else:
+                    delay_desc = "Period not yet overdue (0%)"
+
+                if delay_pts > 0:
+                    detail_text = f"{delay_desc}. Amenorrhea after fertile window intercourse is a primary clinical indicator of conception."
+                    if cycle_summary:
+                        detail_text += f" (Verified via Period Tracker: average cycle {cycle_summary['average_cycle']}d, Cycle Day {cycle_summary['days_since_latest']})."
+                    basis_factors.append({
+                        "factor": "Period Tracker Delay Analysis",
+                        "weight": f"+{int(delay_pts)}%",
+                        "detail": detail_text
+                    })
+
+                # B. PCOS ASSESSMENT INTEGRATION
+                pcos_adjustment = 0.0
+                if pcos_summary and pcos_summary.get("has_record"):
+                    risk_pct = pcos_summary["risk_percentage"]
+                    risk_lvl = pcos_summary["risk_level"]
+                    syms = pcos_summary["symptoms"]
+
+                    if risk_pct >= 60.0:
+                        # High PCOS risk significantly increases the probability that missed period is anovulatory
+                        pcos_adjustment = -12.0
+                        basis_factors.append({
+                            "factor": "PCOS Assessment Sync (High Risk)",
+                            "weight": "-12%",
+                            "detail": f"Assessment confirms {risk_lvl} PCOS ({risk_pct}%) with symptoms ({', '.join(syms) or 'hyperandrogenism'}). Chronic anovulation is a strong alternative cause for cycle delay."
+                        })
+                    elif risk_pct >= 35.0:
+                        pcos_adjustment = -6.0
+                        basis_factors.append({
+                            "factor": "PCOS Assessment Sync (Moderate Risk)",
+                            "weight": "-6%",
+                            "detail": f"Moderate PCOS risk ({risk_pct}%). Accounts for mild ovulatory irregularities."
+                        })
+                    else:
+                        # Low PCOS risk: user has normal ovulatory cycles, making pregnancy much more likely when period is missed
+                        pcos_adjustment = 6.0
+                        basis_factors.append({
+                            "factor": "PCOS Assessment Sync (Low Risk)",
+                            "weight": "+6%",
+                            "detail": f"Low PCOS risk ({risk_pct}%). Anovulatory delays are rare in your baseline; missed period is clinically more concerning for conception."
+                        })
+                elif data.has_pcos:
+                    pcos_adjustment = -8.0
+                    basis_factors.append({
+                        "factor": "PCOS History Adjustment",
+                        "weight": "-8%",
+                        "detail": "Accounts for chronic oligomenorrhea/anovulation common in PCOS."
+                    })
+
+                # C. EARLY CLINICAL SYMPTOMS INTEGRATION
+                symptom_pts = 0.0
+                symptom_names = []
+                symptom_weights = {
+                    "spotting_implantation": (12.0, "Implantation Spotting"),
+                    "breast_tenderness": (8.0, "Breast Swelling/Tenderness"),
+                    "nausea": (8.0, "Morning Sickness / Nausea"),
+                    "frequent_urination": (4.0, "Frequent Urination"),
+                    "fatigue": (3.0, "Early Fatigue"),
+                    "food_aversions": (4.0, "Food Aversion / Heightened Smell"),
+                    "elevated_bbt": (6.0, "Sustained Elevated Basal Temp"),
+                }
+
+                for sym in data.symptoms:
+                    if sym in symptom_weights:
+                        pts, name = symptom_weights[sym]
+                        symptom_pts += pts
+                        symptom_names.append(name)
+
+                symptom_pts = min(symptom_pts, 30.0)
+                if symptom_pts > 0:
+                    basis_factors.append({
+                        "factor": "Clinical Symptom Profile",
+                        "weight": f"+{int(symptom_pts)}%",
+                        "detail": f"Recognized early signs: {', '.join(symptom_names)}."
+                    })
+
+                raw_score = base_score + delay_pts + symptom_pts + pcos_adjustment
+
+                # D. TEST ADJUSTMENT
+                if test == "negative":
+                    if effective_days_late <= 3:
+                        raw_score = min(raw_score * 0.35, 20.0)
+                        basis_factors.append({
+                            "factor": "Negative Urine Test (Early)",
+                            "weight": "-65%",
+                            "detail": "Negative test taken ≤3 days late. Urine hCG may still be below test detection threshold (~25 mIU/mL)."
+                        })
+                    else:
+                        raw_score = min(raw_score * 0.12, 8.0)
+                        basis_factors.append({
+                            "factor": "Negative Urine Test (Confirmed)",
+                            "weight": "-88%",
+                            "detail": "Negative test taken >3 days late has high negative predictive value (>95%)."
+                        })
+
+                final_probability = float(min(95.0, max(2.0, raw_score)))
+
+                if final_probability >= 70.0:
+                    likelihood_category = "High Likelihood"
+                    status_color = "rose"
+                elif final_probability >= 30.0:
+                    likelihood_category = "Moderate Likelihood"
+                    status_color = "amber"
+                else:
+                    likelihood_category = "Low Likelihood"
+                    status_color = "teal"
+
+            # Differential Insight
+            pcos_vs_pregnancy = []
+            if pcos_summary and pcos_summary.get("has_record"):
+                pcos_vs_pregnancy.append(
+                    f"Your PCOS Assessment indicates a {pcos_summary['risk_percentage']}% ({pcos_summary['risk_level']}) risk with symptoms ({', '.join(pcos_summary['symptoms']) or 'hormonal imbalance'}). "
+                    "In PCOS, delayed periods are frequently caused by delayed ovulation (anovulation). However, because unprotected intercourse occurred during your fertile window, early conception cannot be excluded until confirmed by a test."
+                )
+            elif data.has_pcos:
+                pcos_vs_pregnancy.append(
+                    "With PCOS, delayed periods are frequently caused by lack of ovulation rather than pregnancy. "
+                    "However, because unprotected intercourse occurred during your fertile window, early conception cannot be excluded until confirmed by a test."
+                )
+            else:
+                pcos_vs_pregnancy.append(
+                    "Unprotected intercourse during the fertile window followed by a missed period strongly indicates potential conception."
+                )
+
+            if "spotting_implantation" in data.symptoms:
+                pcos_vs_pregnancy.append(
+                    "Light pink/brown spotting around 6–12 days post-ovulation often signifies blastocyst implantation."
+                )
+            if "nausea" in data.symptoms or "breast_tenderness" in data.symptoms:
+                pcos_vs_pregnancy.append(
+                    "Breast tenderness and morning sickness are driven by rising beta-hCG and progesterone."
+                )
+
+            recommendations = []
+            if test in ["positive", "faint_positive"]:
+                recommendations.append("Schedule an appointment with an OB-GYN for a confirmatory serum beta-hCG blood test and early dating ultrasound.")
+                recommendations.append("Begin taking a prenatal vitamin with at least 400 mcg of folic acid if you haven't already.")
+            elif effective_days_late >= 1:
+                recommendations.append("Take a home urine hCG test using your first-morning urine, which contains the highest concentration of pregnancy hormone.")
+                recommendations.append("If the test is negative but your period does not arrive within 5–7 days, repeat the test or consult your doctor.")
+            else:
+                recommendations.append("It may be too early for a reliable home urine test. Wait until the first day of your missed period for maximum test accuracy.")
+
+        result_record = {
+            "email": data.email,
+            "days_late": effective_days_late,
+            "unprotected_intercourse": data.unprotected_intercourse,
+            "symptoms": data.symptoms,
+            "test_result": data.test_result,
+            "has_pcos": data.has_pcos,
+            "probability": round(final_probability, 1),
+            "likelihood_category": likelihood_category,
+            "status_color": status_color,
+            "basis_factors": basis_factors,
+            "pcos_vs_pregnancy": " ".join(pcos_vs_pregnancy),
+            "recommendations": recommendations,
+            "cycle_tracker_data": cycle_summary,
+            "pcos_assessment_data": pcos_summary,
+            "assessed_at": datetime.now().strftime("%d %b %Y, %I:%M %p"),
+            "logged_timestamp": datetime.utcnow()
+        }
+
+        if data.email:
+            pregnancy_records_collection.insert_one(result_record)
+
+        if "_id" in result_record:
+            result_record.pop("_id")
+
+        return result_record
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/pregnancy-history/{email}")
+def get_pregnancy_history(email: str):
+    cursor = pregnancy_records_collection.find(
+        {"email": email},
+        {"_id": 0, "logged_timestamp": 0}
+    ).sort("logged_timestamp", -1).limit(10)
+    return {"history": list(cursor)}
+
 
 import ollama
 from fastapi.responses import StreamingResponse
@@ -203,9 +662,24 @@ def chat(data: dict = Body(...)):
         def generate():
             try:
                 # Different system prompts based on context
+                user_info = data.get("user", {}) if isinstance(data, dict) else {}
+                user_name = user_info.get("name") if user_info else None
+                user_email = user_info.get("email") if user_info else None
+
                 if cycle_aware:
                     
                     context_str = ""
+                    user_account_context = ""
+                    if user_name or user_email:
+                        account_lines = []
+                        if user_name:
+                            account_lines.append(f"User name: {user_name}")
+                        if user_email:
+                            account_lines.append(f"User email: {user_email}")
+                        user_account_context = (
+                            "\n\n[USER ACCOUNT CONTEXT]\n" + "\n".join(account_lines) +
+                            "\n\n"
+                        )
                     if cycle_data and not cycle_data.get("message") and cycle_data.get("historical_dates"):
                         historical_dates = cycle_data.get("historical_dates", [])
                         last_period_date = historical_dates[-1] if historical_dates else "None"
@@ -219,6 +693,8 @@ def chat(data: dict = Body(...)):
                         upcoming_dates = ", ".join(next_period_starts[:3]) if next_period_starts else "None"
 
                         context_str = (
+                            f"\n\n[USER ACCOUNT CONTEXT]\n{user_account_context}" if user_account_context else ""
+                        ) + (
                             f"\n\n[USER'S CYCLE DATA - USE THIS TO ANSWER DATE QUESTIONS]\n"
                             f"• Last logged period date: {last_period_date}\n"
                             f"• All historical logged dates: {', '.join(historical_dates[-5:]) if historical_dates else 'None'}\n"
@@ -236,6 +712,10 @@ def chat(data: dict = Body(...)):
                         )
                     else:
                         context_str = (
+                            f"\n\n[USER ACCOUNT CONTEXT]\n{user_account_context}\n"
+                            if user_account_context
+                            else ""
+                        ) + (
                             "\n\n[USER'S CYCLE CONTEXT]\n"
                             "The user has NOT logged enough period dates yet.\n"
                             "WARNING INSTRUCTION: If the user asks about their cycle or dates, warmly tell them you cannot find their dates because they haven't logged periods yet. "

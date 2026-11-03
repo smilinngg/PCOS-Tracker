@@ -13,8 +13,15 @@ db = client["PCOSdb"]
 predictions_collection = db["predictions"]
 users_collection = db["users"]
 health_records_collection = db["health_records"]
+periods_collection = db["period_logs"]
+pregnancy_records_collection = db["pregnancy_records"]
 
 # Export client for graceful shutdown
-__all__ = ["client", "predictions_collection", "users_collection", "health_records_collection"]
-
-periods_collection = db["period_logs"]
+__all__ = [
+    "client",
+    "predictions_collection",
+    "users_collection",
+    "health_records_collection",
+    "periods_collection",
+    "pregnancy_records_collection",
+]

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, usePathname } from "next/navigation"
-import { Calendar, Stethoscope, LogOut } from "lucide-react"
+import { Calendar, Stethoscope, LogOut, HeartPulse } from "lucide-react"
 import { useState, useEffect } from "react"
 import ThemeToggle from "./ThemeToggle"
 import Image from "next/image"
@@ -26,7 +26,7 @@ export default function Navbar() {
 
   const isActive = (path: string) => pathname === path
 
-  if (!user || pathname === "/" || pathname === "/login" || pathname === "/signup") {
+  if (!user || pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password") {
     return null
   }
 
@@ -34,7 +34,7 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/dashboard")}>
           <Image src="/logo.png" alt="PCOSPredict Logo" width={44} height={44} className="rounded-xl shadow-sm shadow-pink-500/10" />
           <h1 className="text-xl font-bold text-stone-900 dark:text-white">
             PCOS <span className="text-pink-600 dark:text-pink-400">Tracker</span>
@@ -45,9 +45,9 @@ export default function Navbar() {
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => router.push("/dashboard")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all text-sm font-medium cursor-pointer ${
               isActive("/dashboard")
-                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
+                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 font-semibold"
                 : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
             }`}
           >
@@ -57,14 +57,26 @@ export default function Navbar() {
 
           <button
             onClick={() => router.push("/assessment")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all text-sm font-medium cursor-pointer ${
               isActive("/assessment")
-                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
+                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 font-semibold"
                 : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
             }`}
           >
             <Stethoscope className="w-4 h-4" />
             <span className="hidden sm:inline">Assessment</span>
+          </button>
+
+          <button
+            onClick={() => router.push("/pregnancy-check")}
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-all text-sm font-medium cursor-pointer ${
+              isActive("/pregnancy-check")
+                ? "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 font-semibold"
+                : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <HeartPulse className="w-4 h-4 text-rose-500" />
+            <span className="hidden sm:inline">Pregnancy Check</span>
           </button>
         </div>
 
@@ -77,7 +89,7 @@ export default function Navbar() {
           </div>
           <button
             onClick={handleLogout}
-            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg transition-colors"
+            className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg transition-colors cursor-pointer"
             title="Logout"
           >
             <LogOut className="w-5 h-5" />
