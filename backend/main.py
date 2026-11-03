@@ -658,12 +658,23 @@ def get_pregnancy_history(email: str):
     return {"history": list(cursor)}
 
 
-import ollama
+try:
+    import ollama
+    OLLAMA_AVAILABLE = True
+except ImportError:
+    OLLAMA_AVAILABLE = False
+
 from fastapi.responses import StreamingResponse
 import json
 
 @app.post("/chat")
 def chat(data: dict = Body(...)):
+    if not OLLAMA_AVAILABLE:
+        def unavailable():
+            yield f"data: {json.dumps({'error': 'Chat is unavailable in this environment (Ollama not installed).'})} \n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(unavailable(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
     try:
         user_message = data.get("message", "")
         cycle_aware = data.get("cycleAware", False)
